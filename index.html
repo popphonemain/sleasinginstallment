@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>S LEASING - Installment Calculator</title>
-
+<title>S LEASING / U7 - Installment Calculator</title>
 <style>
 
 * {
@@ -381,1569 +379,378 @@ button {
 
 }
 
+
+.tabs{display:flex;gap:8px;margin:-5px 0 25px;border-bottom:1px solid #e5e7eb;padding-bottom:10px}
+.tab-btn{background:#e5e7eb;color:#111827;font-weight:700}
+.tab-btn.active{background:#111827;color:#fff}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.tab-panel select{cursor:pointer}
 </style>
 </head>
 
-
 <body>
-
-
 <div class="container">
+  <div class="header">
+    <h1>S LEASING / U7</h1>
+    <p>Installment Calculator & Quotation</p>
+  </div>
 
+  <div class="card">
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-tab="sleasingTab">S Leasing</button>
+      <button type="button" class="tab-btn" data-tab="u7Tab">U7</button>
+    </div>
 
-<!-- =====================================
-     HEADER
-===================================== -->
+    <section id="sleasingTab" class="tab-panel active">
+      <div class="calculator-section">
+        <div class="form-grid">
+          <div class="field">
+            <label>OS</label>
+            <select id="slOs"><option value="">กำลังโหลด...</option></select>
+          </div>
+          <div class="field">
+            <label>Brand</label>
+            <select id="slBrand" disabled><option value="">เลือก OS ก่อน</option></select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Model</label>
+            <select id="slModel" disabled><option value="">เลือก Brand ก่อน</option></select>
+          </div>
+          <div class="field">
+            <label>Detail</label>
+            <select id="slDetail" disabled><option value="">เลือก Model ก่อน</option></select>
+          </div>
+        </div>
 
-<div class="header">
+        <div class="form-grid">
+          <div class="field">
+            <label>ราคาที่ใช้คำนวณสินเชื่อ</label>
+            <select id="slPriceType">
+              <option value="normal">ราคาปกติ (Price)</option>
+              <option value="rate">ราคาบวกเรท (Price R)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>ราคาที่ใช้คำนวณ (บาท)</label>
+            <input type="text" id="slSelectedPrice" readonly placeholder="-">
+          </div>
+        </div>
 
-  <h1>S LEASING</h1>
+        <div class="info-box">
+          <div>อัตราดอกเบี้ย: <strong>1.15% / เดือน</strong></div>
+          <div>ประเภทร้าน: <strong>VAT</strong></div>
+          <div>เบี้ยประกัน (ยึด Price): <strong id="slInsurance">-</strong></div>
+        </div>
 
-  <p>
-    Installment Calculator & Quotation
-  </p>
+        <div class="product-info">
+          <div class="product-name" id="slProductName">กรุณาเลือกสินค้า</div>
+          <div class="product-price" id="slProductPrice">-</div>
+        </div>
 
+        <div class="table-wrapper">
+          <table>
+            <thead><tr>
+              <th class="term-header">งวด</th>
+              <th><div>15%</div><div class="down-amount" id="slDown15">-</div></th>
+              <th><div>20%</div><div class="down-amount" id="slDown20">-</div></th>
+              <th><div>25%</div><div class="down-amount" id="slDown25">-</div></th>
+              <th><div>30%</div><div class="down-amount" id="slDown30">-</div></th>
+              <th><div>35%</div><div class="down-amount" id="slDown35">-</div></th>
+              <th><div>40%</div><div class="down-amount" id="slDown40">-</div></th>
+              <th><div>45%</div><div class="down-amount" id="slDown45">-</div></th>
+              <th><div>50%</div><div class="down-amount" id="slDown50">-</div></th>
+              <th class="custom"><input type="number" id="slCustom1" value="55" min="0" max="100" step="0.01"><div class="down-amount" id="slDownCustom1">-</div></th>
+              <th class="custom"><input type="number" id="slCustom2" value="60" min="0" max="100" step="0.01"><div class="down-amount" id="slDownCustom2">-</div></th>
+            </tr></thead>
+            <tbody id="slResultBody"><tr><td colspan="11">เลือกสินค้าเพื่อคำนวณ</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="insurance-box">
+          <div class="insurance-box-title">ตารางเบี้ยประกัน (อ้างอิง E: Price)</div>
+          <table class="insurance-table">
+            <thead><tr><th>ราคาสินค้า</th><th>เบี้ยประกัน</th></tr></thead>
+            <tbody>
+              <tr><td>3,900 – 10,000</td><td>795</td></tr>
+              <tr><td>10,001 – 20,000</td><td>1,450</td></tr>
+              <tr><td>20,001 – 40,000</td><td>1,900</td></tr>
+              <tr><td>40,001 – 60,000</td><td>2,475</td></tr>
+              <tr><td>60,001 – 80,000</td><td>4,025</td></tr>
+              <tr><td>80,001 – 100,000</td><td>5,175</td></tr>
+              <tr><td>100,001 – 120,000</td><td>6,785</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="quote-section">
+        <div class="quote-title">ใบเสนอราคา / เปรียบเทียบแผนการผ่อน</div>
+        <div class="customer-grid">
+          <input type="text" id="customerName" placeholder="ชื่อลูกค้า">
+          <input type="text" id="customerPhone" placeholder="เบอร์โทรศัพท์">
+        </div>
+        <div class="quote-controls">
+          <button class="btn-add" type="button" id="addQuoteBtn">+ เพิ่มตัวเลือก</button>
+          <button class="btn-print" type="button" onclick="window.print()">🖨 พิมพ์ / Save PDF</button>
+          <button class="btn-clear" type="button" id="clearQuoteBtn">ล้างใบเสนอราคา</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="quote-table">
+            <thead><tr><th>รุ่น</th><th>ราคา</th><th>ดาวน์</th><th>เงินดาวน์</th><th>งวด</th><th>ไม่รวมประกัน</th><th>รวมประกัน</th><th class="action-column">จัดการ</th></tr></thead>
+            <tbody id="quoteBody"></tbody>
+          </table>
+        </div>
+        <div class="note">
+          * ใบเสนอราคาเป็นการประมาณการตามข้อมูลที่เลือก<br>
+          * อัตราดอกเบี้ย 1.15% ต่อเดือน<br>
+          * เบี้ยประกันคำนวณอัตโนมัติตาม E: Price<br>
+          * ค่างวดปัดขึ้นเป็นจำนวนเต็มบาท
+        </div>
+      </div>
+    </section>
+
+    <section id="u7Tab" class="tab-panel">
+      <div class="calculator-section">
+        <div class="form-grid">
+          <div class="field"><label>Product</label><select id="u7Product"><option value="">กำลังโหลด...</option></select></div>
+          <div class="field"><label>ROM</label><select id="u7Rom" disabled><option value="">เลือก Product ก่อน</option></select></div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>สภาพ</label><select id="u7Condition" disabled><option value="">เลือก ROM ก่อน</option></select></div>
+          <div class="field"><label>เงินดาวน์</label><select id="u7Down" disabled><option value="">เลือกสินค้าและสภาพก่อน</option></select></div>
+        </div>
+        <div class="info-box">
+          <div>โครงสร้าง: <strong>ดึงจาก Sheet U7 โดยตรง</strong></div>
+          <div>ราคา Ex.VAT: <strong id="u7ExVat">-</strong></div>
+          <div>ราคา Inc.VAT: <strong id="u7IncVat">-</strong></div>
+        </div>
+        <div class="product-info">
+          <div class="product-name" id="u7ProductName">กรุณาเลือกสินค้า</div>
+          <div class="product-price" id="u7ProductPrice">-</div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr>
+              <th>เงินดาวน์</th><th>ยอดดาวน์ Ex.VAT</th><th>ยอดดาวน์ Inc.VAT</th><th>ยอดจัด Ex.VAT</th><th>ยอดจัด Inc.VAT</th>
+              <th>12 งวด</th><th>14 งวด</th><th>16 งวด</th><th>18 งวด</th>
+            </tr></thead>
+            <tbody id="u7ResultBody"><tr><td colspan="9">เลือกสินค้าเพื่อดูข้อมูลจาก Sheet U7</td></tr></tbody>
+          </table>
+        </div>
+        <div class="note">
+          * U7 แสดงข้อมูลตาม Structure และค่าที่มีอยู่ใน Sheet U7 โดยตรง<br>
+          * ระบบจะไม่สร้างงวดหรือสูตรที่ไม่มีอยู่ใน Sheet U7
+        </div>
+      </div>
+    </section>
+  </div>
 </div>
-
-
-<div class="card">
-
-
-<!-- =====================================
-     CALCULATOR
-===================================== -->
-
-<div class="calculator-section">
-
-
-  <div class="form-grid">
-
-
-    <div class="field">
-
-      <label>
-        ชื่อรุ่น
-      </label>
-
-      <input
-        type="text"
-        id="model"
-        placeholder="เช่น iPhone 17 Pro Max"
-        oninput="calculate()"
-      >
-
-    </div>
-
-
-    <div class="field">
-
-      <label>
-        ราคาสินค้า (บาท)
-      </label>
-
-      <input
-        type="number"
-        id="price"
-        placeholder="48900"
-        min="0"
-        oninput="calculate()"
-      >
-
-    </div>
-
-
-  </div>
-
-
-  <div class="info-box">
-
-    <div>
-      อัตราดอกเบี้ย:
-      <strong>1.15% / เดือน</strong>
-    </div>
-
-    <div>
-      ประเภทร้าน:
-      <strong>VAT</strong>
-    </div>
-
-    <div>
-      เบี้ยประกัน:
-      <strong id="insuranceDisplay">-</strong>
-    </div>
-
-  </div>
-
-
-  <div class="product-info">
-
-    <div
-      class="product-name"
-      id="productName"
-    >
-      กรุณากรอกชื่อรุ่น
-    </div>
-
-    <div
-      class="product-price"
-      id="productPrice"
-    >
-      กรุณากรอกราคา
-    </div>
-
-  </div>
-
-
-  <!-- =====================================
-       INSTALLMENT TABLE
-  ====================================== -->
-
-  <div class="table-wrapper">
-
-    <table>
-
-      <thead>
-
-        <tr>
-
-          <th
-            class="term-header"
-            rowspan="2"
-          >
-            งวด
-          </th>
-
-          <th colspan="8">
-            เงินดาวน์
-          </th>
-
-          <th
-            class="custom"
-            colspan="2"
-          >
-            กำหนดเอง
-          </th>
-
-        </tr>
-
-
-        <tr>
-
-          <th>
-            <div>15%</div>
-            <div
-              class="down-amount"
-              id="down15"
-            >
-              -
-            </div>
-          </th>
-
-
-          <th>
-            <div>20%</div>
-            <div
-              class="down-amount"
-              id="down20"
-            >
-              -
-            </div>
-          </th>
-
-
-          <th>
-            <div>25%</div>
-            <div
-              class="down-amount"
-              id="down25"
-            >
-              -
-            </div>
-          </th>
-
-
-          <th>
-            <div>30%</div>
-            <div
-              class="down-amount"
-              id="down30"
-            >
-              -
-            </div>
-          </th>
-
-
-          <th>
-            <div>35%</div>
-            <div
-              class="down-amount"
-              id="down35"
-            >
-              -
-            </div>
-          </th>
-
-
-          <th>
-            <div>40%</div>
-            <div
-              class="down-amount"
-              id="down40"
-            >
-              -
-            </div>
-          </th>
-
-
-          <th>
-            <div>45%</div>
-            <div
-              class="down-amount"
-              id="down45"
-            >
-              -
-            </div>
-          </th>
-
-
-          <th>
-            <div>50%</div>
-            <div
-              class="down-amount"
-              id="down50"
-            >
-              -
-            </div>
-          </th>
-
-
-          <th class="custom">
-
-            <input
-              type="number"
-              id="custom1"
-              value="55"
-              min="0"
-              max="100"
-              step="0.01"
-              style="width:70px;padding:5px;"
-              oninput="calculate()"
-            >
-
-            <div
-              class="down-amount"
-              id="downCustom1"
-            >
-              -
-            </div>
-
-          </th>
-
-
-          <th class="custom">
-
-            <input
-              type="number"
-              id="custom2"
-              value="60"
-              min="0"
-              max="100"
-              step="0.01"
-              style="width:70px;padding:5px;"
-              oninput="calculate()"
-            >
-
-            <div
-              class="down-amount"
-              id="downCustom2"
-            >
-              -
-            </div>
-
-          </th>
-
-        </tr>
-
-      </thead>
-
-
-      <tbody id="resultBody">
-
-        <tr>
-
-          <td colspan="11">
-            กรุณากรอกราคาเพื่อคำนวณ
-          </td>
-
-        </tr>
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-
-  <!-- =====================================
-       INSURANCE
-  ====================================== -->
-
-  <div class="insurance-box">
-
-    <div class="insurance-box-title">
-      ตารางเบี้ยประกัน
-    </div>
-
-
-    <table class="insurance-table">
-
-      <thead>
-
-        <tr>
-          <th>ราคาสินค้า</th>
-          <th>เบี้ยประกัน</th>
-        </tr>
-
-      </thead>
-
-
-      <tbody>
-
-        <tr>
-          <td>3,900 – 10,000</td>
-          <td>795</td>
-        </tr>
-
-        <tr>
-          <td>10,001 – 20,000</td>
-          <td>1,450</td>
-        </tr>
-
-        <tr>
-          <td>20,001 – 40,000</td>
-          <td>1,900</td>
-        </tr>
-
-        <tr>
-          <td>40,001 – 60,000</td>
-          <td>2,475</td>
-        </tr>
-
-        <tr>
-          <td>60,001 – 80,000</td>
-          <td>4,025</td>
-        </tr>
-
-        <tr>
-          <td>80,001 – 100,000</td>
-          <td>5,175</td>
-        </tr>
-
-        <tr>
-          <td>100,001 – 120,000</td>
-          <td>6,785</td>
-        </tr>
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-
-</div>
-
-
-<!-- =====================================
-     QUOTATION
-===================================== -->
-
-<div class="quote-section">
-
-
-  <div class="quote-title">
-    ใบเสนอราคา / เปรียบเทียบแผนการผ่อน
-  </div>
-
-
-  <!-- CUSTOMER -->
-
-  <div class="customer-grid">
-
-    <input
-      type="text"
-      id="customerName"
-      placeholder="ชื่อลูกค้า"
-    >
-
-    <input
-      type="text"
-      id="customerPhone"
-      placeholder="เบอร์โทรศัพท์"
-    >
-
-  </div>
-
-
-  <!-- BUTTONS -->
-
-  <div class="quote-controls">
-
-    <button
-      class="btn-add"
-      onclick="addQuoteOption()"
-    >
-      + เพิ่มตัวเลือก
-    </button>
-
-
-    <button
-      class="btn-print"
-      onclick="printQuote()"
-    >
-      🖨 พิมพ์ / Save PDF
-    </button>
-
-
-    <button
-      class="btn-clear"
-      onclick="clearQuote()"
-    >
-      ล้างใบเสนอราคา
-    </button>
-
-  </div>
-
-
-  <!-- QUOTE TABLE -->
-
-  <div class="table-wrapper">
-
-    <table class="quote-table">
-
-      <thead>
-
-        <tr>
-
-          <th>
-            รุ่น
-          </th>
-
-          <th>
-            ราคา
-          </th>
-
-          <th>
-            ดาวน์
-          </th>
-
-          <th>
-            เงินดาวน์
-          </th>
-
-          <th>
-            งวด
-          </th>
-
-          <th>
-            ไม่รวมประกัน
-          </th>
-
-          <th>
-            รวมประกัน
-          </th>
-
-          <th class="action-column">
-            จัดการ
-          </th>
-
-        </tr>
-
-      </thead>
-
-
-      <tbody
-        id="quoteBody"
-      >
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-
-  <div class="note">
-
-    * ใบเสนอราคาเป็นการประมาณการตามข้อมูลที่กรอก<br>
-
-    * อัตราดอกเบี้ย 1.15% ต่อเดือน<br>
-
-    * เบี้ยประกันคำนวณอัตโนมัติตามราคาสินค้า<br>
-
-    * ค่างวดปัดขึ้นเป็นจำนวนเต็มบาท
-
-  </div>
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
 
 <script>
-
-
-// ========================================
-// SETTINGS
-// ========================================
-
+const SHEET_ID = "18jDAU-P5Q9zGdEU-ajuzoCArI_kZ2ongp2qHY3P11vk";
 const RATE = 0.0115;
+const TERMS = [12,14,16,18,24,30];
+const DOWN_PAYMENTS = [15,20,25,30,35,40,45,50];
+let slProducts = [], u7Rows = [], quoteOptions = [];
 
+const $ = id => document.getElementById(id);
+const money = v => Math.round(Number(v)||0).toLocaleString("th-TH");
 
-const TERMS = [
-  6,
-  9,
-  12,
-  15,
-  18,
-  24,
-  30
-];
-
-
-const DOWN_PAYMENTS = [
-  15,
-  20,
-  25,
-  30,
-  35,
-  40,
-  45,
-  50
-];
-
-
-let quoteOptions = [];
-
-
-// ========================================
-// MONEY
-// ========================================
-
-function money(value) {
-
-  return Math.round(value)
-    .toLocaleString("th-TH");
-
+async function loadSheet(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`โหลด ${sheetName} ไม่สำเร็จ`);
+  const text = await res.text();
+  const m = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?$/);
+  if (!m) throw new Error(`อ่านข้อมูล ${sheetName} ไม่ได้`);
+  const data = JSON.parse(m[1]);
+  const cols = data.table.cols.map(c => c.label || "");
+  return data.table.rows.map(r => {
+    const obj = {};
+    cols.forEach((c,i) => obj[c] = r.c[i] ? (r.c[i].v ?? "") : "");
+    return obj;
+  });
 }
 
-
-// ========================================
-// INSURANCE
-// ========================================
+function unique(arr) { return [...new Set(arr.filter(v => v !== "" && v != null))]; }
+function fillSelect(sel, values, placeholder) {
+  sel.innerHTML = `<option value="">${placeholder}</option>` + values.map(v => `<option value="${escapeHtml(String(v))}">${escapeHtml(String(v))}</option>`).join("");
+  sel.disabled = false;
+}
+function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
 
 function getInsurance(price) {
-
-  if (price >= 3900 && price <= 10000)
-    return 795;
-
-  if (price >= 10001 && price <= 20000)
-    return 1450;
-
-  if (price >= 20001 && price <= 40000)
-    return 1900;
-
-  if (price >= 40001 && price <= 60000)
-    return 2475;
-
-  if (price >= 60001 && price <= 80000)
-    return 4025;
-
-  if (price >= 80001 && price <= 100000)
-    return 5175;
-
-  if (price >= 100001 && price <= 120000)
-    return 6785;
-
+  price = Number(price)||0;
+  if (price>=3900 && price<=10000) return 795;
+  if (price>=10001 && price<=20000) return 1450;
+  if (price>=20001 && price<=40000) return 1900;
+  if (price>=40001 && price<=60000) return 2475;
+  if (price>=60001 && price<=80000) return 4025;
+  if (price>=80001 && price<=100000) return 5175;
+  if (price>=100001 && price<=120000) return 6785;
   return 0;
-
+}
+function calcNoIns(price, down, term) {
+  return Math.ceil(((price-down)*(1+RATE*term))/term);
+}
+function calcIns(price, down, insurance, term) {
+  return Math.ceil((((((price-down)*100/107)+insurance)*(1+RATE*term))/term)*1.07);
 }
 
-
-// ========================================
-// WITHOUT INSURANCE
-// ========================================
-
-function calculateWithoutInsurance(
-  price,
-  down,
-  term
-) {
-
-  const financed =
-    price - down;
-
-  return Math.ceil(
-
-    (
-      financed *
-      (1 + RATE * term)
-    ) / term
-
-  );
-
+function productBySelection() {
+  const os=$("slOs").value, brand=$("slBrand").value, model=$("slModel").value, detail=$("slDetail").value;
+  return slProducts.find(p => String(p.OS)===os && String(p.Brand)===brand && String(p.Model)===model && String(p.Detail)===detail);
 }
-
-
-// ========================================
-// WITH INSURANCE
-// ========================================
-
-function calculateWithInsurance(
-  price,
-  down,
-  insurance,
-  term
-) {
-
-  return Math.ceil(
-
-    (
-
-      (
-
-        (
-          (price - down) *
-          100 / 107
-        )
-
-        + insurance
-
-      )
-
-      *
-
-      (
-        1 +
-        RATE * term
-      )
-
-    )
-
-    / term
-
-  ) * 1.07;
-
+function selectedSlPrice(p) {
+  if (!p) return 0;
+  return $("slPriceType").value === "rate" ? Number(p["Price (R)"])||0 : Number(p.Price)||0;
 }
-
-
-// ========================================
-// MAIN CALCULATOR
-// ========================================
-
-function calculate() {
-
-  const model =
-    document.getElementById("model")
-      .value
-      .trim();
-
-
-  const price =
-    Number(
-      document.getElementById("price")
-        .value
-    ) || 0;
-
-
-  const custom1 =
-    Number(
-      document.getElementById("custom1")
-        .value
-    );
-
-
-  const custom2 =
-    Number(
-      document.getElementById("custom2")
-        .value
-    );
-
-
-  const resultBody =
-    document.getElementById(
-      "resultBody"
-    );
-
-
-  const productName =
-    document.getElementById(
-      "productName"
-    );
-
-
-  const productPrice =
-    document.getElementById(
-      "productPrice"
-    );
-
-
-  const insuranceDisplay =
-    document.getElementById(
-      "insuranceDisplay"
-    );
-
-
-  productName.textContent =
-    model ||
-    "กรุณากรอกชื่อรุ่น";
-
-
-  if (price <= 0) {
-
-    productPrice.textContent =
-      "กรุณากรอกราคา";
-
-    insuranceDisplay.textContent =
-      "-";
-
-    resultBody.innerHTML = `
-
-      <tr>
-
-        <td colspan="11">
-          กรุณากรอกราคาเพื่อคำนวณ
-        </td>
-
-      </tr>
-
-    `;
-
-    updateDownAmounts(0);
-
-    return;
-
+function renderSl() {
+  const p=productBySelection(), price=selectedSlPrice(p);
+  if (!p || !price) {
+    $("slSelectedPrice").value="";
+    $("slProductName").textContent="กรุณาเลือกสินค้า";
+    $("slProductPrice").textContent="-";
+    $("slInsurance").textContent="-";
+    $("slResultBody").innerHTML='<tr><td colspan="11">เลือกสินค้าเพื่อคำนวณ</td></tr>';
+    updateDowns(0); return;
   }
+  const basePrice=Number(p.Price)||0, insurance=getInsurance(basePrice);
+  $("slSelectedPrice").value=money(price);
+  $("slProductName").textContent=p.Detail;
+  $("slProductPrice").textContent=`ราคาปกติ ${money(basePrice)} บาท | ราคาบวกเรท ${money(p["Price (R)"])} บาท | ใช้คำนวณ ${money(price)} บาท`;
+  $("slInsurance").textContent=insurance ? money(insurance)+" บาท" : "ไม่อยู่ในช่วงราคาที่กำหนด";
+  updateDowns(price);
 
+  const downs=[...DOWN_PAYMENTS, Number($("slCustom1").value), Number($("slCustom2").value)];
+  $("slResultBody").innerHTML=TERMS.map(term => {
+    let cells=downs.map(dp => {
+      if (!Number.isFinite(dp)||dp<0||dp>100) return "<td>-</td>";
+      const down=price*dp/100;
+      const no=calcNoIns(price,down,term);
+      const yes=insurance ? calcIns(price,down,insurance,term) : null;
+      return `<td><div class="installment">${money(no)}</div><div class="cell-label">ไม่รวมประกัน</div>${yes?`<div class="installment installment-ins">${money(yes)}</div><div class="cell-label">รวมประกัน</div>`:""}</td>`;
+    }).join("");
+    return `<tr><td class="term">${term}</td>${cells}</tr>`;
+  }).join("");
+}
+function updateDowns(price) {
+  [...DOWN_PAYMENTS].forEach(p=>{ const e=$("slDown"+p); if(e)e.textContent=price?"฿"+money(price*p/100):"-"; });
+  ["1","2"].forEach(n=>{ const v=Number($("slCustom"+n).value); $("slDownCustom"+n).textContent=price&&Number.isFinite(v)?"฿"+money(price*v/100):"-"; });
+}
 
-  productPrice.textContent =
-    "ราคา " +
-    money(price) +
-    " บาท";
-
-
-  const insurance =
-    getInsurance(price);
-
-
-  insuranceDisplay.textContent =
-    insurance > 0
-      ? money(insurance) + " บาท"
-      : "ไม่อยู่ในช่วงราคาที่กำหนด";
-
-
-  updateDownAmounts(price);
-
-
-  const downPayments = [
-
-    ...DOWN_PAYMENTS,
-
-    custom1,
-
-    custom2
-
-  ];
-
-
-  let html = "";
-
-
-  TERMS.forEach(term => {
-
-    html += `
-
-      <tr>
-
-        <td class="term">
-          ${term}
-        </td>
-
-    `;
-
-
-    downPayments.forEach(
-      downPercent => {
-
-        if (
-          isNaN(downPercent) ||
-          downPercent < 0 ||
-          downPercent > 100
-        ) {
-
-          html += `
-            <td>-</td>
-          `;
-
-          return;
-
-        }
-
-
-        const down =
-          price *
-          downPercent /
-          100;
-
-
-        const noInsurance =
-          calculateWithoutInsurance(
-            price,
-            down,
-            term
-          );
-
-
-        const withInsurance =
-          insurance > 0
-
-          ? calculateWithInsurance(
-              price,
-              down,
-              insurance,
-              term
-            )
-
-          : 0;
-
-
-        html += `
-
-          <td>
-
-            <div
-              class="installment installment-no-ins"
-            >
-              ${money(noInsurance)}
-            </div>
-
-            <div class="cell-label">
-              ไม่รวมประกัน
-            </div>
-
-
-            ${
-              insurance > 0
-
-              ? `
-
-                <div
-                  class="installment installment-ins"
-                >
-                  ${money(withInsurance)}
-                </div>
-
-                <div class="cell-label">
-                  รวมประกัน
-                </div>
-
-              `
-
-              : `
-
-                <div class="cell-label">
-                  ไม่มีประกัน
-                </div>
-
-              `
-            }
-
-          </td>
-
-        `;
-
-      }
-    );
-
-
-    html += `
-      </tr>
-    `;
-
+function initSleasing() {
+  $("slOs").addEventListener("change",()=>{
+    const vals=unique(slProducts.filter(p=>String(p.OS)===$("slOs").value).map(p=>p.Brand));
+    fillSelect($("slBrand"),vals,"เลือก Brand");
+    $("slModel").disabled=$("slDetail").disabled=true;
+    $("slModel").innerHTML='<option value="">เลือก Brand ก่อน</option>';
+    $("slDetail").innerHTML='<option value="">เลือก Model ก่อน</option>'; renderSl();
   });
-
-
-  resultBody.innerHTML =
-    html;
-
+  $("slBrand").addEventListener("change",()=>{
+    const vals=unique(slProducts.filter(p=>String(p.OS)===$("slOs").value&&String(p.Brand)===$("slBrand").value).map(p=>p.Model));
+    fillSelect($("slModel"),vals,"เลือก Model");
+    $("slDetail").disabled=true;$("slDetail").innerHTML='<option value="">เลือก Model ก่อน</option>';renderSl();
+  });
+  $("slModel").addEventListener("change",()=>{
+    const vals=unique(slProducts.filter(p=>String(p.OS)===$("slOs").value&&String(p.Brand)===$("slBrand").value&&String(p.Model)===$("slModel").value).map(p=>p.Detail));
+    fillSelect($("slDetail"),vals,"เลือก Detail");renderSl();
+  });
+  $("slDetail").addEventListener("change",renderSl);
+  $("slPriceType").addEventListener("change",renderSl);
+  ["slCustom1","slCustom2"].forEach(id=>$(id).addEventListener("input",renderSl));
 }
 
-
-// ========================================
-// UPDATE DOWN PAYMENT HEADER
-// ========================================
-
-function updateDownAmounts(price) {
-
-  DOWN_PAYMENTS.forEach(
-    percent => {
-
-      const element =
-        document.getElementById(
-          "down" + percent
-        );
-
-
-      if (!element)
-        return;
-
-
-      element.textContent =
-
-        price > 0
-
-        ? "฿" +
-          money(
-            price *
-            percent /
-            100
-          )
-
-        : "-";
-
-    }
-  );
-
-
-  const custom1 =
-    Number(
-      document.getElementById(
-        "custom1"
-      ).value
-    );
-
-
-  const custom2 =
-    Number(
-      document.getElementById(
-        "custom2"
-      ).value
-    );
-
-
-  document.getElementById(
-    "downCustom1"
-  ).textContent =
-
-    price > 0 && !isNaN(custom1)
-
-    ? "฿" +
-      money(
-        price *
-        custom1 /
-        100
-      )
-
-    : "-";
-
-
-  document.getElementById(
-    "downCustom2"
-  ).textContent =
-
-    price > 0 && !isNaN(custom2)
-
-    ? "฿" +
-      money(
-        price *
-        custom2 /
-        100
-      )
-
-    : "-";
-
+function initU7() {
+  const products=unique(u7Rows.map(r=>r.Product));
+  fillSelect($("u7Product"),products,"เลือก Product");
+  $("u7Product").addEventListener("change",()=>{
+    const vals=unique(u7Rows.filter(r=>String(r.Product)===$("u7Product").value).map(r=>r.ROM));
+    fillSelect($("u7Rom"),vals,"เลือก ROM"); $("u7Condition").disabled=true; $("u7Down").disabled=true;
+    $("u7Condition").innerHTML='<option value="">เลือก ROM ก่อน</option>'; $("u7Down").innerHTML='<option value="">เลือกสินค้าและสภาพก่อน</option>'; renderU7();
+  });
+  $("u7Rom").addEventListener("change",()=>{
+    const vals=unique(u7Rows.filter(r=>String(r.Product)===$("u7Product").value&&String(r.ROM)===$("u7Rom").value).map(r=>r["สภาพ"]));
+    fillSelect($("u7Condition"),vals,"เลือกสภาพ"); $("u7Down").disabled=true; renderU7();
+  });
+  $("u7Condition").addEventListener("change",()=>{
+    const vals=u7Rows.filter(r=>String(r.Product)===$("u7Product").value&&String(r.ROM)===$("u7Rom").value&&String(r["สภาพ"])===$("u7Condition").value).map(r=>r["เงินดาวน์ (%)"]);
+    const labels=unique(vals.map(v=>String(Math.round(Number(v)*10000)/100)+"%"));
+    $("u7Down").innerHTML='<option value="">ทุกเงินดาวน์</option>'+labels.map(x=>`<option value="${x}">${x}</option>`).join("");
+    $("u7Down").disabled=false; renderU7();
+  });
+  $("u7Down").addEventListener("change",renderU7);
 }
-
-
-// ========================================
-// ADD QUOTE OPTION
-// ========================================
+function renderU7() {
+  const product=$("u7Product").value, rom=$("u7Rom").value, cond=$("u7Condition").value, down=$("u7Down").value;
+  let rows=u7Rows.filter(r=>String(r.Product)===product&&String(r.ROM)===rom&&String(r["สภาพ"])===cond);
+  if(down) rows=rows.filter(r=>String(Math.round(Number(r["เงินดาวน์ (%)"])*10000)/100)+"%"===down);
+  if(!product||!rom||!cond||!rows.length){
+    $("u7ResultBody").innerHTML='<tr><td colspan="9">เลือก Product, ROM และสภาพ เพื่อดูข้อมูลจาก Sheet U7</td></tr>';
+    ["u7ExVat","u7IncVat","u7ProductName","u7ProductPrice"].forEach(id=>$(id).textContent="-"); return;
+  }
+  const first=rows[0];
+  $("u7ExVat").textContent=money(first["ราคาเครื่อง (Ex.VAT)"])+" บาท";
+  $("u7IncVat").textContent=money(first["รวมเครื่อง (Inc.VAT)"])+" บาท";
+  $("u7ProductName").textContent=`${first.Product} ${first.ROM} (${first["สภาพ"]})`;
+  $("u7ProductPrice").textContent=`Ex.VAT ${money(first["ราคาเครื่อง (Ex.VAT)"])} | Inc.VAT ${money(first["รวมเครื่อง (Inc.VAT)"])}`;
+  $("u7ResultBody").innerHTML=rows.map(r=>`<tr>
+    <td>${money(Number(r["เงินดาวน์ (%)"])*100)}%</td>
+    <td>${money(r["ยอดดาวน์ (Ex.VAT)"])}</td><td>${money(r["ยอดดาวน์ (รวม VAT)"])}</td>
+    <td>${money(r["ยอดจัด (Ex.VAT)"])}</td><td>${money(r["ยอดจัด (Inc.VAT)"])}</td>
+    <td>${r["ผ่อน 12 งวด"]?money(r["ผ่อน 12 งวด"]):"-"}</td>
+    <td>${r["ผ่อน 14 งวด"]?money(r["ผ่อน 14 งวด"]):"-"}</td>
+    <td>${r["ผ่อน 16 งวด"]?money(r["ผ่อน 16 งวด"]):"-"}</td>
+    <td>${r["ผ่อน 18 งวด"]?money(r["ผ่อน 18 งวด"]):"-"}</td>
+  </tr>`).join("");
+}
 
 function addQuoteOption() {
-
-  const model =
-    document.getElementById(
-      "model"
-    ).value.trim();
-
-
-  const price =
-    Number(
-      document.getElementById(
-        "price"
-      ).value
-    ) || 0;
-
-
-  if (!model) {
-
-    alert(
-      "กรุณากรอกชื่อรุ่นก่อน"
-    );
-
-    return;
-
-  }
-
-
-  if (price <= 0) {
-
-    alert(
-      "กรุณากรอกราคาสินค้าก่อน"
-    );
-
-    return;
-
-  }
-
-
-  quoteOptions.push({
-
-    model: model,
-
-    price: price,
-
-    down: 15,
-
-    term: 18
-
-  });
-
-
+  const p=productBySelection(), price=selectedSlPrice(p);
+  if(!p||!price){alert("กรุณาเลือกสินค้าและราคาที่ใช้คำนวณก่อน");return;}
+  quoteOptions.push({model:p.Detail,price,basePrice:Number(p.Price)||0,down:15,term:18});
   renderQuote();
-
 }
-
-
-// ========================================
-// RENDER QUOTE
-// ========================================
-
 function renderQuote() {
-
-  const body =
-    document.getElementById(
-      "quoteBody"
-    );
-
-
-  body.innerHTML = "";
-
-
-  quoteOptions.forEach(
-    (item, index) => {
-
-      const insurance =
-        getInsurance(
-          item.price
-        );
-
-
-      const downAmount =
-        item.price *
-        item.down /
-        100;
-
-
-      const noInsurance =
-        calculateWithoutInsurance(
-          item.price,
-          downAmount,
-          item.term
-        );
-
-
-      const withInsurance =
-        insurance > 0
-
-        ? calculateWithInsurance(
-            item.price,
-            downAmount,
-            insurance,
-            item.term
-          )
-
-        : 0;
-
-
-      const row =
-        document.createElement(
-          "tr"
-        );
-
-
-      // MODEL
-      const modelCell =
-        document.createElement(
-          "td"
-        );
-
-
-      const modelInput =
-        document.createElement(
-          "input"
-        );
-
-
-      modelInput.value =
-        item.model;
-
-
-      modelInput.oninput =
-        function() {
-
-          quoteOptions[index].model =
-            this.value;
-
-        };
-
-
-      modelCell.appendChild(
-        modelInput
-      );
-
-
-      // PRICE
-      const priceCell =
-        document.createElement(
-          "td"
-        );
-
-
-      const priceInput =
-        document.createElement(
-          "input"
-        );
-
-
-      priceInput.type =
-        "number";
-
-
-      priceInput.value =
-        item.price;
-
-
-      priceInput.oninput =
-        function() {
-
-          quoteOptions[index].price =
-            Number(this.value) || 0;
-
-          renderQuote();
-
-        };
-
-
-      priceCell.appendChild(
-        priceInput
-      );
-
-
-      // DOWN
-      const downCell =
-        document.createElement(
-          "td"
-        );
-
-
-      const downSelect =
-        document.createElement(
-          "select"
-        );
-
-
-      const downOptions = [
-
-        ...DOWN_PAYMENTS,
-
-        "custom"
-
-      ];
-
-
-      downOptions.forEach(
-        value => {
-
-          const option =
-            document.createElement(
-              "option"
-            );
-
-
-          if (value === "custom") {
-
-            option.value =
-              "custom";
-
-            option.textContent =
-              "กำหนดเอง";
-
-          } else {
-
-            option.value =
-              value;
-
-            option.textContent =
-              value + "%";
-
-          }
-
-
-          if (
-            value === item.down
-          ) {
-
-            option.selected =
-              true;
-
-          }
-
-
-          downSelect.appendChild(
-            option
-          );
-
-        }
-      );
-
-
-      downSelect.onchange =
-        function() {
-
-          if (
-            this.value ===
-            "custom"
-          ) {
-
-            const custom =
-              prompt(
-                "กรอก % เงินดาวน์"
-              );
-
-
-            if (
-              custom !== null
-            ) {
-
-              const value =
-                Number(custom);
-
-
-              if (
-                value >= 0 &&
-                value <= 100
-              ) {
-
-                quoteOptions[index]
-                  .down =
-                    value;
-
-              }
-
-            }
-
-          } else {
-
-            quoteOptions[index]
-              .down =
-                Number(
-                  this.value
-                );
-
-          }
-
-
-          renderQuote();
-
-        };
-
-
-      downCell.appendChild(
-        downSelect
-      );
-
-
-      // DOWN AMOUNT
-      const downAmountCell =
-        document.createElement(
-          "td"
-        );
-
-
-      downAmountCell.textContent =
-        money(
-          downAmount
-        );
-
-
-      // TERM
-      const termCell =
-        document.createElement(
-          "td"
-        );
-
-
-      const termSelect =
-        document.createElement(
-          "select"
-        );
-
-
-      TERMS.forEach(
-        term => {
-
-          const option =
-            document.createElement(
-              "option"
-            );
-
-
-          option.value =
-            term;
-
-
-          option.textContent =
-            term + " งวด";
-
-
-          if (
-            term === item.term
-          ) {
-
-            option.selected =
-              true;
-
-          }
-
-
-          termSelect.appendChild(
-            option
-          );
-
-        }
-      );
-
-
-      termSelect.onchange =
-        function() {
-
-          quoteOptions[index]
-            .term =
-              Number(
-                this.value
-              );
-
-          renderQuote();
-
-        };
-
-
-      termCell.appendChild(
-        termSelect
-      );
-
-
-      // NO INSURANCE
-      const noInsuranceCell =
-        document.createElement(
-          "td"
-        );
-
-
-      noInsuranceCell.className =
-        "quote-result";
-
-
-      noInsuranceCell.textContent =
-        money(
-          noInsurance
-        );
-
-
-      // WITH INSURANCE
-      const withInsuranceCell =
-        document.createElement(
-          "td"
-        );
-
-
-      withInsuranceCell.className =
-        "quote-result";
-
-
-      withInsuranceCell.style.color =
-        "#2563eb";
-
-
-      withInsuranceCell.textContent =
-        insurance > 0
-        ? money(withInsurance)
-        : "-";
-
-
-      // DELETE
-      const deleteCell =
-        document.createElement(
-          "td"
-        );
-
-
-      deleteCell.className =
-        "action-column";
-
-
-      const deleteButton =
-        document.createElement(
-          "button"
-        );
-
-
-      deleteButton.className =
-        "quote-remove";
-
-
-      deleteButton.textContent =
-        "ลบ";
-
-
-      deleteButton.onclick =
-        function() {
-
-          quoteOptions.splice(
-            index,
-            1
-          );
-
-          renderQuote();
-
-        };
-
-
-      deleteCell.appendChild(
-        deleteButton
-      );
-
-
-      row.appendChild(
-        modelCell
-      );
-
-      row.appendChild(
-        priceCell
-      );
-
-      row.appendChild(
-        downCell
-      );
-
-      row.appendChild(
-        downAmountCell
-      );
-
-      row.appendChild(
-        termCell
-      );
-
-      row.appendChild(
-        noInsuranceCell
-      );
-
-      row.appendChild(
-        withInsuranceCell
-      );
-
-      row.appendChild(
-        deleteCell
-      );
-
-
-      body.appendChild(
-        row
-      );
-
-    }
-  );
-
+  const body=$("quoteBody"); body.innerHTML="";
+  quoteOptions.forEach((item,index)=>{
+    const ins=getInsurance(item.basePrice||item.price), downAmt=item.price*item.down/100;
+    const no=calcNoIns(item.price,downAmt,item.term), yes=ins?calcIns(item.price,downAmt,ins,item.term):0;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td><input value="${escapeHtml(item.model)}"></td><td>${money(item.price)}</td>
+      <td><select>${DOWN_PAYMENTS.map(v=>`<option value="${v}" ${v===item.down?"selected":""}>${v}%</option>`).join("")}</select></td>
+      <td>${money(downAmt)}</td><td><select>${TERMS.map(v=>`<option value="${v}" ${v===item.term?"selected":""}>${v} งวด</option>`).join("")}</select></td>
+      <td class="quote-result">${money(no)}</td><td class="quote-result">${ins?money(yes):"-"}</td><td class="action-column"><button class="quote-remove">ลบ</button></td>`;
+    tr.children[0].querySelector("input").oninput=e=>item.model=e.target.value;
+    tr.children[2].querySelector("select").onchange=e=>{item.down=Number(e.target.value);renderQuote();};
+    tr.children[4].querySelector("select").onchange=e=>{item.term=Number(e.target.value);renderQuote();};
+    tr.children[7].querySelector("button").onclick=()=>{quoteOptions.splice(index,1);renderQuote();};
+    body.appendChild(tr);
+  });
 }
+$("addQuoteBtn").onclick=addQuoteOption;
+$("clearQuoteBtn").onclick=()=>{if(quoteOptions.length&&confirm("ต้องการล้างใบเสนอราคาหรือไม่?")){quoteOptions=[];renderQuote();}};
 
+document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+  btn.classList.add("active"); $(btn.dataset.tab).classList.add("active");
+}));
 
-// ========================================
-// CLEAR QUOTE
-// ========================================
-
-function clearQuote() {
-
-  if (
-    quoteOptions.length === 0
-  ) {
-
-    return;
-
+(async function init(){
+  try {
+    [slProducts,u7Rows]=await Promise.all([loadSheet("Sleasing"),loadSheet("U7")]);
+    fillSelect($("slOs"),unique(slProducts.map(p=>p.OS)),"เลือก OS");
+    initSleasing(); initU7();
+  } catch(err) {
+    console.error(err);
+    alert("โหลดข้อมูล Google Sheet ไม่สำเร็จ กรุณาตรวจสอบว่า Sheet เปิดให้เข้าถึงได้ และชื่อ Sheet เป็น Sleasing / U7");
+    $("slOs").innerHTML='<option value="">โหลดข้อมูลไม่สำเร็จ</option>';
+    $("u7Product").innerHTML='<option value="">โหลดข้อมูลไม่สำเร็จ</option>';
   }
-
-
-  if (
-    confirm(
-      "ต้องการล้างใบเสนอราคาหรือไม่?"
-    )
-  ) {
-
-    quoteOptions = [];
-
-    renderQuote();
-
-  }
-
-}
-
-
-// ========================================
-// PRINT
-// ========================================
-
-function printQuote() {
-
-  if (
-    quoteOptions.length === 0
-  ) {
-
-    alert(
-      "กรุณาเพิ่มตัวเลือกในใบเสนอราคาก่อน"
-    );
-
-    return;
-
-  }
-
-
-  window.print();
-
-}
-
-
-// ========================================
-// START
-// ========================================
-
-calculate();
-
+})();
 </script>
-
 </body>
 </html>
