@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S LEASING / U7 - Installment Calculator</title>
+<title>S LEASING / U7 / KS - Installment Calculator</title>
 <style>
 
 * {
@@ -391,7 +391,7 @@ button {
 <body>
 <div class="container">
   <div class="header">
-    <h1>S LEASING / U7</h1>
+    <h1>S LEASING / U7 / KS</h1>
     <p>Installment Calculator & Quotation</p>
   </div>
 
@@ -399,6 +399,7 @@ button {
     <div class="tabs">
       <button type="button" class="tab-btn active" data-tab="sleasingTab">S Leasing</button>
       <button type="button" class="tab-btn" data-tab="u7Tab">U7</button>
+      <button type="button" class="tab-btn" data-tab="ksTab">สินเชื่อ KS</button>
     </div>
 
     <section id="sleasingTab" class="tab-panel active">
@@ -545,6 +546,58 @@ button {
         </div>
       </div>
     </section>
+
+    <section id="ksTab" class="tab-panel">
+      <div class="calculator-section">
+        <div class="form-grid">
+          <div class="field">
+            <label>iPhone</label>
+            <select id="ksProduct"><option value="">กำลังโหลด...</option></select>
+          </div>
+          <div class="field">
+            <label>ความจุ</label>
+            <select id="ksRom" disabled><option value="">เลือก iPhone ก่อน</option></select>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div>อัตราดอกเบี้ย: <strong>3% / เดือน</strong></div>
+          <div>สูตร: <strong>ROUNDUP(((Price - Down Payment) × (1 + 3% × Term)) / Term, 0)</strong></div>
+          <div>แหล่งราคา: <strong>Sheet KS</strong></div>
+        </div>
+
+        <div class="product-info">
+          <div class="product-name" id="ksProductName">กรุณาเลือกสินค้า</div>
+          <div class="product-price" id="ksProductPrice">-</div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th class="term-header">งวด</th>
+                <th><div>25%</div><div class="down-amount" id="ksDown25">-</div></th>
+                <th><div>30%</div><div class="down-amount" id="ksDown30">-</div></th>
+                <th><div>35%</div><div class="down-amount" id="ksDown35">-</div></th>
+                <th><div>40%</div><div class="down-amount" id="ksDown40">-</div></th>
+                <th class="custom"><input type="number" id="ksCustom1" value="" placeholder="%" min="0" max="100" step="0.01"><div class="down-amount" id="ksDownCustom1">-</div></th>
+                <th class="custom"><input type="number" id="ksCustom2" value="" placeholder="%" min="0" max="100" step="0.01"><div class="down-amount" id="ksDownCustom2">-</div></th>
+              </tr>
+            </thead>
+            <tbody id="ksResultBody">
+              <tr><td colspan="7">เลือกสินค้าเพื่อคำนวณ</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note">
+          * ราคาอ้างอิงจาก Sheet KS: คอลัมน์ A = iPhone, B = ความจุ, C = ราคา<br>
+          * เงินดาวน์มาตรฐาน 25%, 30%, 35%, 40% และสามารถกำหนดเองได้อีก 2 ช่อง<br>
+          * ไม่มีการคำนวณประกันในสินเชื่อ KS<br>
+          * ค่างวดปัดขึ้นเป็นจำนวนเต็มบาทตามสูตร ROUNDUP
+        </div>
+      </div>
+    </section>    </section>
   </div>
 </div>
 
@@ -553,7 +606,7 @@ const SHEET_ID = "18jDAU-P5Q9zGdEU-ajuzoCArI_kZ2ongp2qHY3P11vk";
 const RATE = 0.0115;
 const TERMS = [12,14,16,18,24,30];
 const DOWN_PAYMENTS = [15,20,25,30,35,40,45,50];
-let slProducts = [], u7Rows = [], quoteOptions = [];
+let slProducts = [], u7Rows = [], ksRows = [], quoteOptions = [];
 
 const $ = id => document.getElementById(id);
 const money = v => Math.round(Number(v)||0).toLocaleString("th-TH");
@@ -707,6 +760,79 @@ function renderU7() {
   </tr>`).join("");
 }
 
+function initKS() {
+  const products = unique(ksRows.map(r => r.iPhone || r["iPhone"] || r.Product));
+  fillSelect($("ksProduct"), products, "เลือก iPhone");
+
+  $("ksProduct").addEventListener("change", () => {
+    const product = $("ksProduct").value;
+    const vals = unique(ksRows
+      .filter(r => String(r.iPhone || r["iPhone"] || r.Product) === product)
+      .map(r => r["ความจุ"] || r.ROM));
+    fillSelect($("ksRom"), vals, "เลือกความจุ");
+    renderKS();
+  });
+
+  $("ksRom").addEventListener("change", renderKS);
+  ["ksCustom1","ksCustom2"].forEach(id => $(id).addEventListener("input", renderKS));
+}
+
+function getKSProduct() {
+  const product = $("ksProduct").value;
+  const rom = $("ksRom").value;
+  return ksRows.find(r =>
+    String(r.iPhone || r["iPhone"] || r.Product) === product &&
+    String(r["ความจุ"] || r.ROM) === rom
+  );
+}
+
+function calcKS(price, downPercent, term) {
+  const down = Number(price) * Number(downPercent) / 100;
+  return Math.ceil(((Number(price) - down) * (1 + (0.03 * Number(term)))) / Number(term));
+}
+
+function updateKSDowns(price) {
+  [25,30,35,40].forEach(pct => {
+    const el = $("ksDown" + pct);
+    if (el) el.textContent = price ? "฿" + money(Number(price) * pct / 100) : "-";
+  });
+  ["1","2"].forEach(n => {
+    const pct = Number($("ksCustom" + n).value);
+    const el = $("ksDownCustom" + n);
+    el.textContent = price && Number.isFinite(pct) ? "฿" + money(Number(price) * pct / 100) : "-";
+  });
+}
+
+function renderKS() {
+  const p = getKSProduct();
+  const price = p ? Number(p.Price || p["ราคา"] || p["Price"]) || 0 : 0;
+
+  if (!p || !price) {
+    $("ksProductName").textContent = "กรุณาเลือกสินค้า";
+    $("ksProductPrice").textContent = "-";
+    $("ksResultBody").innerHTML = '<tr><td colspan="7">เลือกสินค้าเพื่อคำนวณ</td></tr>';
+    updateKSDowns(0);
+    return;
+  }
+
+  const product = p.iPhone || p["iPhone"] || p.Product;
+  const rom = p["ความจุ"] || p.ROM || "";
+  $("ksProductName").textContent = product + (rom ? " " + rom : "");
+  $("ksProductPrice").textContent = "ราคา " + money(price) + " บาท";
+  updateKSDowns(price);
+
+  const downs = [25,30,35,40,Number($("ksCustom1").value),Number($("ksCustom2").value)];
+
+  $("ksResultBody").innerHTML = [12,14,16,18,20].map(term => {
+    const cells = downs.map(dp => {
+      if (!Number.isFinite(dp) || dp < 0 || dp > 100) return "<td>-</td>";
+      return "<td><div class=\"installment\">" + money(calcKS(price, dp, term)) +
+             '</div><div class="cell-label">บาท/เดือน</div></td>';
+    }).join("");
+    return '<tr><td class="term">' + term + "</td>" + cells + "</tr>";
+  }).join("");
+}
+
 function addQuoteOption() {
   const p=productBySelection(), price=selectedSlPrice(p);
   if(!p||!price){alert("กรุณาเลือกสินค้าและราคาที่ใช้คำนวณก่อน");return;}
@@ -741,14 +867,19 @@ document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click",
 
 (async function init(){
   try {
-    [slProducts,u7Rows]=await Promise.all([loadSheet("Sleasing"),loadSheet("U7")]);
+    [slProducts,u7Rows,ksRows]=await Promise.all([
+      loadSheet("Sleasing"),
+      loadSheet("U7"),
+      loadSheet("KS")
+    ]);
     fillSelect($("slOs"),unique(slProducts.map(p=>p.OS)),"เลือก OS");
-    initSleasing(); initU7();
+    initSleasing(); initU7(); initKS();
   } catch(err) {
     console.error(err);
-    alert("โหลดข้อมูล Google Sheet ไม่สำเร็จ กรุณาตรวจสอบว่า Sheet เปิดให้เข้าถึงได้ และชื่อ Sheet เป็น Sleasing / U7");
+    alert("โหลดข้อมูล Google Sheet ไม่สำเร็จ กรุณาตรวจสอบว่า Sheet เปิดให้เข้าถึงได้ และชื่อ Sheet เป็น Sleasing / U7 / KS");
     $("slOs").innerHTML='<option value="">โหลดข้อมูลไม่สำเร็จ</option>';
     $("u7Product").innerHTML='<option value="">โหลดข้อมูลไม่สำเร็จ</option>';
+    $("ksProduct").innerHTML='<option value="">โหลดข้อมูลไม่สำเร็จ</option>';
   }
 })();
 </script>
