@@ -594,7 +594,7 @@ button {
           * ราคาอ้างอิงจาก Sheet KS: คอลัมน์ A = iPhone, B = ความจุ, C = ราคา<br>
           * เงินดาวน์มาตรฐาน 25%, 30%, 35%, 40% และสามารถกำหนดเองได้อีก 2 ช่อง<br>
           * ไม่มีการคำนวณประกันในสินเชื่อ KS<br>
-          * ค่างวดปัดขึ้นเป็นจำนวนเต็มบาทตามสูตร ROUNDUP
+          * ค่างวดใช้ ROUNDUP ก่อน แล้วปรับหลักหน่วย: 1-5 ปัดลง และ 6-9 ปัดขึ้น ให้ลงท้ายด้วย 0
         </div>
       </div>
     </section>    </section>
@@ -788,7 +788,12 @@ function getKSProduct() {
 
 function calcKS(price, downPercent, term) {
   const down = Number(price) * Number(downPercent) / 100;
-  return Math.ceil(((Number(price) - down) * (1 + (0.03 * Number(term)))) / Number(term));
+  // 1) ROUNDUP(...,0) ตามสูตรเดิม
+  // 2) ปรับหลักหน่วย: 0-5 ปัดลงเป็น 0, 6-9 ปัดขึ้นเป็น 0 หลักสิบ
+  const roundedUp = Math.ceil(((Number(price) - down) * (1 + (0.03 * Number(term)))) / Number(term));
+  const ones = roundedUp % 10;
+  if (ones === 0) return roundedUp;
+  return ones <= 5 ? roundedUp - ones : roundedUp + (10 - ones);
 }
 
 function updateKSDowns(price) {
